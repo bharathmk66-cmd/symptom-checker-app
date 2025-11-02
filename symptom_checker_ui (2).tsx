@@ -1,0 +1,601 @@
+import React, { useState } from 'react';
+import { Search, MapPin, Clock, AlertCircle, CheckCircle, Info, ArrowRight, ChevronRight, Activity, Thermometer, Heart, Brain, Droplet, Wind, Zap, Home, HelpCircle } from 'lucide-react';
+
+export default function SymptomChecker() {
+  const [screen, setScreen] = useState('welcome');
+  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
+  const [symptomDetails, setSymptomDetails] = useState({});
+  const [currentSymptom, setCurrentSymptom] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const symptomCategories = [
+    { icon: Brain, name: 'Headache', color: 'bg-purple-100 text-purple-600' },
+    { icon: Thermometer, name: 'Fever', color: 'bg-red-100 text-red-600' },
+    { icon: Wind, name: 'Cough', color: 'bg-blue-100 text-blue-600' },
+    { icon: Zap, name: 'Fatigue', color: 'bg-yellow-100 text-yellow-600' },
+    { icon: Droplet, name: 'Nausea', color: 'bg-green-100 text-green-600' },
+    { icon: Heart, name: 'Chest Pain', color: 'bg-pink-100 text-pink-600' },
+  ];
+
+  const handleSymptomSelect = (symptom) => {
+    setCurrentSymptom(symptom);
+    setScreen('symptom-detail');
+  };
+
+  const saveSymptomDetail = (duration, severity, location) => {
+    setSymptomDetails({
+      ...symptomDetails,
+      [currentSymptom]: { duration, severity, location }
+    });
+    if (!selectedSymptoms.includes(currentSymptom)) {
+      setSelectedSymptoms([...selectedSymptoms, currentSymptom]);
+    }
+    setCurrentSymptom(null);
+    setScreen('symptom-input');
+  };
+
+  const analyzeSymptoms = () => {
+    setScreen('analyzing');
+    setAnalyzing(true);
+    setTimeout(() => {
+      setAnalyzing(false);
+      setScreen('results');
+    }, 3000);
+  };
+
+  const reset = () => {
+    setScreen('welcome');
+    setSelectedSymptoms([]);
+    setSymptomDetails({});
+    setCurrentSymptom(null);
+  };
+
+  // Welcome Screen
+  if (screen === 'welcome') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col" style={{ maxWidth: '375px', margin: '0 auto' }}>
+        <div className="flex-1 flex flex-col px-6 pt-12 pb-6">
+          <div className="flex-1 flex flex-col justify-center items-center text-center">
+            <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
+              <Activity className="text-white" size={48} />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              AI Symptom Checker
+            </h1>
+            <p className="text-gray-600 text-lg mb-8 max-w-xs">
+              Get quick insights about your symptoms with AI-powered analysis
+            </p>
+            
+            <div className="w-full space-y-4 mb-8">
+              <div className="flex items-start gap-3 text-left">
+                <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="text-teal-600" size={18} />
+                </div>
+                <div>
+                  <p className="text-gray-800 font-medium">Fast & Easy</p>
+                  <p className="text-gray-600 text-sm">Answer a few simple questions</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 text-left">
+                <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="text-teal-600" size={18} />
+                </div>
+                <div>
+                  <p className="text-gray-800 font-medium">AI-Powered</p>
+                  <p className="text-gray-600 text-sm">Smart health insights</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 text-left">
+                <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <CheckCircle className="text-teal-600" size={18} />
+                </div>
+                <div>
+                  <p className="text-gray-800 font-medium">Confidential</p>
+                  <p className="text-gray-600 text-sm">Your privacy matters</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setScreen('symptom-input')}
+              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+            >
+              Start Symptom Check
+              <ArrowRight size={20} />
+            </button>
+            <button
+              onClick={() => setScreen('faq')}
+              className="w-full bg-white text-gray-700 py-4 rounded-2xl font-medium border-2 border-gray-200 hover:border-gray-300 transition-all flex items-center justify-center gap-2"
+            >
+              <HelpCircle size={20} />
+              Help & FAQ
+            </button>
+          </div>
+
+          <p className="text-xs text-gray-500 text-center mt-6">
+            This tool provides information only and is not a substitute for professional medical advice.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Symptom Input Screen
+  if (screen === 'symptom-input') {
+    return (
+      <div className="min-h-screen bg-white flex flex-col" style={{ maxWidth: '375px', margin: '0 auto' }}>
+        <div className="bg-blue-600 text-white px-6 py-4 shadow-md">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-bold">Select Symptoms</h2>
+            <button onClick={() => setScreen('welcome')} className="text-white">
+              <Home size={24} />
+            </button>
+          </div>
+          <p className="text-blue-100 text-sm">
+            Choose what you're experiencing
+          </p>
+        </div>
+
+        <div className="flex-1 px-6 py-6 overflow-y-auto">
+          {selectedSymptoms.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                SELECTED ({selectedSymptoms.length})
+              </h3>
+              <div className="space-y-2">
+                {selectedSymptoms.map((symptom, idx) => (
+                  <div key={idx} className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="text-blue-600" size={20} />
+                      <span className="font-medium text-gray-800">{symptom}</span>
+                    </div>
+                    <button
+                      onClick={() => handleSymptomSelect(symptom)}
+                      className="text-blue-600 text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            COMMON SYMPTOMS
+          </h3>
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {symptomCategories.map((category, idx) => {
+              const Icon = category.icon;
+              const isSelected = selectedSymptoms.includes(category.name);
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleSymptomSelect(category.name)}
+                  className={`${isSelected ? 'bg-blue-50 border-blue-500' : 'bg-white border-gray-200'} border-2 rounded-xl p-4 flex flex-col items-center gap-2 hover:border-blue-300 transition-all min-h-[100px]`}
+                >
+                  <div className={`w-12 h-12 ${category.color} rounded-full flex items-center justify-center`}>
+                    <Icon size={24} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-800 text-center">
+                    {category.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              OTHER SYMPTOM
+            </h3>
+            <div className="relative">
+              <Search className="absolute left-4 top-4 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search or type symptom..."
+                className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.target.value) {
+                    handleSymptomSelect(e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-white border-t-2 border-gray-100">
+          <button
+            onClick={analyzeSymptoms}
+            disabled={selectedSymptoms.length === 0}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+          >
+            Analyze Symptoms ({selectedSymptoms.length})
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Symptom Detail Screen
+  if (screen === 'symptom-detail') {
+    const [duration, setDuration] = useState(symptomDetails[currentSymptom]?.duration || '');
+    const [severity, setSeverity] = useState(symptomDetails[currentSymptom]?.severity || '');
+    const [location, setLocation] = useState(symptomDetails[currentSymptom]?.location || '');
+
+    return (
+      <div className="min-h-screen bg-white flex flex-col" style={{ maxWidth: '375px', margin: '0 auto' }}>
+        <div className="bg-blue-600 text-white px-6 py-4 shadow-md">
+          <button onClick={() => setScreen('symptom-input')} className="text-white mb-2">
+            ← Back
+          </button>
+          <h2 className="text-xl font-bold">{currentSymptom}</h2>
+          <p className="text-blue-100 text-sm">
+            Tell us more about this symptom
+          </p>
+        </div>
+
+        <div className="flex-1 px-6 py-6 overflow-y-auto">
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <Clock className="inline mr-2" size={16} />
+              How long have you had this?
+            </label>
+            <div className="space-y-2">
+              {['Less than 1 day', '1-3 days', '4-7 days', '1-2 weeks', 'More than 2 weeks'].map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setDuration(option)}
+                  className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                    duration === option
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <span className="font-medium text-gray-800">{option}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <AlertCircle className="inline mr-2" size={16} />
+              How severe is it?
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Mild', color: 'bg-yellow-100 border-yellow-300 text-yellow-700' },
+                { label: 'Moderate', color: 'bg-orange-100 border-orange-300 text-orange-700' },
+                { label: 'Severe', color: 'bg-red-100 border-red-300 text-red-700' }
+              ].map((option) => (
+                <button
+                  key={option.label}
+                  onClick={() => setSeverity(option.label)}
+                  className={`p-4 rounded-xl border-2 font-semibold transition-all ${
+                    severity === option.label
+                      ? option.color
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {(currentSymptom === 'Headache' || currentSymptom === 'Chest Pain') && (
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <MapPin className="inline mr-2" size={16} />
+                Where exactly?
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., Left side, Center, etc."
+                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 py-4 bg-white border-t-2 border-gray-100">
+          <button
+            onClick={() => saveSymptomDetail(duration, severity, location)}
+            disabled={!duration || !severity}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+          >
+            Save & Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Analyzing Screen
+  if (screen === 'analyzing') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center px-6" style={{ maxWidth: '375px', margin: '0 auto' }}>
+        <div className="w-32 h-32 relative mb-8">
+          <div className="absolute inset-0 bg-blue-600 rounded-full animate-ping opacity-20"></div>
+          <div className="absolute inset-0 bg-blue-600 rounded-full flex items-center justify-center">
+            <Activity className="text-white animate-pulse" size={64} />
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3 text-center">
+          Analyzing Symptoms
+        </h2>
+        <p className="text-gray-600 text-center mb-8">
+          Our AI is processing your information to provide personalized insights...
+        </p>
+        <div className="w-full max-w-xs space-y-3">
+          <div className="flex items-center gap-3 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+            <span className="text-sm">Analyzing symptom patterns</span>
+          </div>
+          <div className="flex items-center gap-3 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+            <span className="text-sm">Matching conditions</span>
+          </div>
+          <div className="flex items-center gap-3 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+            <span className="text-sm">Generating recommendations</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Results Screen
+  if (screen === 'results') {
+    const mockResults = [
+      { 
+        name: 'Common Cold', 
+        confidence: 78, 
+        severity: 'Mild',
+        description: 'A viral infection of the upper respiratory tract',
+        actions: ['Rest and hydration', 'Over-the-counter remedies', 'Monitor symptoms']
+      },
+      { 
+        name: 'Seasonal Allergies', 
+        confidence: 65, 
+        severity: 'Mild',
+        description: 'Allergic reaction to environmental triggers',
+        actions: ['Antihistamines', 'Avoid triggers', 'Consult allergist']
+      },
+      { 
+        name: 'Flu (Influenza)', 
+        confidence: 52, 
+        severity: 'Moderate',
+        description: 'Viral infection affecting the respiratory system',
+        actions: ['Antiviral medication', 'Complete rest', 'See doctor if worsening']
+      }
+    ];
+
+    return (
+      <div className="min-h-screen bg-white flex flex-col" style={{ maxWidth: '375px', margin: '0 auto' }}>
+        <div className="bg-blue-600 text-white px-6 py-4 shadow-md">
+          <h2 className="text-xl font-bold mb-1">Your Results</h2>
+          <p className="text-blue-100 text-sm">
+            Based on your symptoms
+          </p>
+        </div>
+
+        <div className="flex-1 px-6 py-6 overflow-y-auto">
+          <div className="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-4 mb-6">
+            <div className="flex gap-3">
+              <Info className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+              <p className="text-blue-900 text-sm">
+                These are possible conditions based on your symptoms. Always consult a healthcare provider for proper diagnosis.
+              </p>
+            </div>
+          </div>
+
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            POSSIBLE CONDITIONS
+          </h3>
+          <div className="space-y-3 mb-6">
+            {mockResults.map((result, idx) => (
+              <div key={idx} className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-all">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-bold text-gray-900 flex-1">
+                    {result.name}
+                  </h4>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    result.severity === 'Mild' ? 'bg-yellow-100 text-yellow-700' :
+                    result.severity === 'Moderate' ? 'bg-orange-100 text-orange-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {result.severity}
+                  </span>
+                </div>
+                <div className="mb-3">
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="text-gray-600">AI Confidence</span>
+                    <span className="font-semibold text-blue-600">{result.confidence}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all"
+                      style={{ width: `${result.confidence}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm mb-3">
+                  {result.description}
+                </p>
+                <button className="text-blue-600 text-sm font-semibold flex items-center gap-1">
+                  View Details
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            NEXT STEPS
+          </h3>
+          <div className="space-y-2 mb-6">
+            <div className="flex items-start gap-3 bg-teal-50 border-2 border-teal-200 rounded-xl p-4">
+              <CheckCircle className="text-teal-600 flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <p className="font-medium text-gray-900 mb-1">
+                  Rest & Monitor
+                </p>
+                <p className="text-gray-600 text-sm">
+                  Get adequate rest and track your symptoms
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-teal-50 border-2 border-teal-200 rounded-xl p-4">
+              <CheckCircle className="text-teal-600 flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <p className="font-medium text-gray-900 mb-1">
+                  Stay Hydrated
+                </p>
+                <p className="text-gray-600 text-sm">
+                  Drink plenty of fluids throughout the day
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-red-50 border-l-4 border-red-600 rounded-lg p-4 mb-6">
+            <div className="flex gap-3">
+              <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <p className="font-bold text-red-900 mb-2">
+                  Seek Immediate Care If:
+                </p>
+                <ul className="text-red-800 text-sm space-y-1">
+                  <li>• Difficulty breathing or chest pain</li>
+                  <li>• High fever (above 103°F/39.4°C)</li>
+                  <li>• Symptoms rapidly worsening</li>
+                  <li>• Severe headache with stiff neck</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-white border-t-2 border-gray-100 space-y-2">
+          <button
+            onClick={() => setScreen('faq')}
+            className="w-full bg-white text-blue-600 py-4 rounded-xl font-semibold border-2 border-blue-600 hover:bg-blue-50 transition-all"
+          >
+            View Health Tips
+          </button>
+          <button
+            onClick={reset}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition-all"
+          >
+            Start New Check
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // FAQ/Tips Screen
+  if (screen === 'faq') {
+    const faqs = [
+      {
+        q: 'When should I see a doctor?',
+        a: 'Seek immediate care for severe symptoms like chest pain, difficulty breathing, high fever (103°F+), severe headache with stiff neck, or rapidly worsening conditions.'
+      },
+      {
+        q: 'How accurate is this tool?',
+        a: 'This AI provides educational insights based on symptom patterns, but it cannot replace professional medical diagnosis. Always consult healthcare providers.'
+      },
+      {
+        q: 'Is my data private?',
+        a: 'Yes, your symptom information is confidential and used only to provide you with personalized health insights during your session.'
+      },
+      {
+        q: 'Can I use this for emergencies?',
+        a: 'No. For medical emergencies, call 911 or go to the nearest emergency room immediately. This tool is for informational purposes only.'
+      }
+    ];
+
+    const tips = [
+      { icon: '💧', title: 'Stay Hydrated', desc: 'Drink 8-10 glasses of water daily' },
+      { icon: '😴', title: 'Get Rest', desc: '7-9 hours of quality sleep' },
+      { icon: '🏃', title: 'Stay Active', desc: '30 minutes of exercise most days' },
+      { icon: '🥗', title: 'Eat Well', desc: 'Balanced diet with fruits & vegetables' },
+    ];
+
+    return (
+      <div className="min-h-screen bg-white flex flex-col" style={{ maxWidth: '375px', margin: '0 auto' }}>
+        <div className="bg-blue-600 text-white px-6 py-4 shadow-md">
+          <button onClick={() => setScreen(selectedSymptoms.length > 0 ? 'results' : 'welcome')} className="text-white mb-2">
+            ← Back
+          </button>
+          <h2 className="text-xl font-bold">Help & Tips</h2>
+          <p className="text-blue-100 text-sm">
+            Your health questions answered
+          </p>
+        </div>
+
+        <div className="flex-1 px-6 py-6 overflow-y-auto">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            WELLNESS TIPS
+          </h3>
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {tips.map((tip, idx) => (
+              <div key={idx} className="bg-gradient-to-br from-teal-50 to-blue-50 border-2 border-teal-100 rounded-xl p-4 text-center">
+                <div className="text-3xl mb-2">{tip.icon}</div>
+                <p className="font-bold text-gray-900 text-sm mb-1">{tip.title}</p>
+                <p className="text-gray-600 text-xs">{tip.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            FREQUENTLY ASKED QUESTIONS
+          </h3>
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => (
+              <div key={idx} className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
+                <h4 className="font-bold text-gray-900 mb-2 flex items-start gap-2">
+                  <HelpCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={18} />
+                  {faq.q}
+                </h4>
+                <p className="text-gray-600 text-sm pl-7">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+            <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+              <Info size={18} />
+              Emergency Services
+            </h4>
+            <p className="text-blue-800 text-sm mb-3">
+              For life-threatening emergencies, always call emergency services immediately.
+            </p>
+            <a href="tel:911" className="block w-full bg-red-600 text-white text-center py-3 rounded-lg font-bold">
+              📞 Call 911
+            </a>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-white border-t-2 border-gray-100">
+          <button
+            onClick={() => setScreen('welcome')}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition-all"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
